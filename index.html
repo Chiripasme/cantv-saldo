@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Consulta CANTV</title>
   <style>
     body {
@@ -16,6 +16,7 @@
     h1 {
       text-align: center;
       font-size: 1.4rem;
+      margin-bottom: 1rem;
     }
 
     form {
@@ -27,7 +28,7 @@
     }
 
     input {
-      width: 140px;  /* ancho reducido */
+      width: 140px;
       padding: 0.5rem;
       border-radius: 8px;
       border: none;
@@ -52,17 +53,38 @@
       border-radius: 8px;
       max-width: 320px;
       margin: 0 auto;
+      display: none;
     }
 
-    .resultado p {
-      margin: 0.5rem 0;
+    .resultado .fila {
+      display: flex;
+      justify-content: space-between;
+      padding: 0.3rem 0;
+      border-bottom: 1px solid #333;
       font-size: 0.95rem;
+    }
+
+    .resultado .fila:last-child {
+      border-bottom: none;
+    }
+
+    .resultado .campo {
+      font-weight: 600;
+      color: #ccc;
+    }
+
+    .resultado .valor {
+      text-align: right;
+      color: #eee;
+      max-width: 150px;
+      word-break: break-word;
     }
 
     .error {
       color: #ff5555;
       text-align: center;
       margin-top: 1rem;
+      display: none;
     }
   </style>
 </head>
@@ -70,11 +92,11 @@
   <h1>Consulta de Saldo CANTV</h1>
   <form id="formulario">
     <input type="text" id="codigo" placeholder="Código de área (ej: 212)" maxlength="4" required value="212" />
-    <input type="text" id="numero" placeholder="Número telefónico" maxlength="7" required value="3539190"/>
+    <input type="text" id="numero" placeholder="Número telefónico" maxlength="7" required value="3539190" />
     <button type="submit">Consultar</button>
   </form>
-  <div class="resultado" id="resultado" style="display:none;"></div>
-  <p class="error" id="error" style="display:none;"></p>
+  <div class="resultado" id="resultado"></div>
+  <p class="error" id="error"></p>
 
   <script>
     const formulario = document.getElementById("formulario");
@@ -102,13 +124,13 @@
 
         const d = data[0];
         resultado.innerHTML = `
-          <p><strong>Teléfono:</strong> (${d.codigoArea}) ${d.telefono}</p>
-          <p><strong>Última facturación:</strong> ${formatearFecha(d.fechaUltimaFacturacion)}</p>
-          <p><strong>Saldo actual:</strong> Bs ${d.saldoActual}</p>
-          <p><strong>Saldo vencido:</strong> Bs ${d.saldoVencido}</p>
-          <p><strong>Fecha de corte:</strong> ${formatearFecha(d.fechaCorte)}</p>
-          <p><strong>Fecha de vencimiento:</strong> ${formatearFecha(d.fechaVencimiento)}</p>
-          <p><strong>Último pago:</strong> Bs ${d.montoultipag}</p>
+          <div class="fila"><div class="campo">Teléfono:</div><div class="valor">(${d.codigoArea}) ${d.telefono}</div></div>
+          <div class="fila"><div class="campo">Última facturación:</div><div class="valor">${formatearFecha(d.fechaUltimaFacturacion)}</div></div>
+          <div class="fila"><div class="campo">Saldo actual:</div><div class="valor">Bs ${d.saldoActual}</div></div>
+          <div class="fila"><div class="campo">Saldo vencido:</div><div class="valor">Bs ${d.saldoVencido}</div></div>
+          <div class="fila"><div class="campo">Fecha de corte:</div><div class="valor">${formatearFecha(d.fechaCorte)}</div></div>
+          <div class="fila"><div class="campo">Fecha de vencimiento:</div><div class="valor">${formatearFecha(d.fechaVencimiento)}</div></div>
+          <div class="fila"><div class="campo">Último pago:</div><div class="valor">Bs ${d.montoultipag}</div></div>
         `;
         resultado.style.display = "block";
       } catch (e) {
