@@ -19,16 +19,17 @@
     }
 
     form {
+      max-width: 320px;
+      margin: 0 auto 1rem;
       display: flex;
       flex-direction: column;
       gap: 0.5rem;
-      max-width: 300px;
-      margin: 0 auto 1rem;
     }
 
     input {
-      padding: 0.4rem;
-      border-radius: 6px;
+      width: 140px;  /* ancho reducido */
+      padding: 0.5rem;
+      border-radius: 8px;
       border: none;
       font-size: 1rem;
       background-color: #1e1e1e;
@@ -40,7 +41,7 @@
       background-color: #007bff;
       color: white;
       border: none;
-      border-radius: 6px;
+      border-radius: 8px;
       font-size: 1rem;
       cursor: pointer;
     }
@@ -48,8 +49,8 @@
     .resultado {
       background-color: #1e1e1e;
       padding: 1rem;
-      border-radius: 6px;
-      max-width: 300px;
+      border-radius: 8px;
+      max-width: 320px;
       margin: 0 auto;
     }
 
@@ -59,7 +60,7 @@
     }
 
     .error {
-      color: red;
+      color: #ff5555;
       text-align: center;
       margin-top: 1rem;
     }
@@ -68,8 +69,8 @@
 <body>
   <h1>Consulta de Saldo CANTV</h1>
   <form id="formulario">
-    <input type="text" id="codigo" placeholder="Código de área (ej: 212)" maxlength="4" required />
-    <input type="text" id="numero" placeholder="Número telefónico" maxlength="7" required />
+    <input type="text" id="codigo" placeholder="Código de área (ej: 212)" maxlength="4" required value="212" />
+    <input type="text" id="numero" placeholder="Número telefónico" maxlength="7" required value="3539190"/>
     <button type="submit">Consultar</button>
   </form>
   <div class="resultado" id="resultado" style="display:none;"></div>
@@ -126,4 +127,3 @@
   </script>
 </body>
 </html>
-
