@@ -2,120 +2,128 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Consulta Saldo CANTV</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Consulta CANTV</title>
   <style>
     body {
-      margin: 0;
-      padding: 0;
       background-color: #121212;
       color: #ffffff;
-      font-family: Arial, sans-serif;
+      font-family: sans-serif;
+      margin: 0;
+      padding: 1rem;
     }
-    .container {
-      max-width: 500px;
-      margin: auto;
-      padding: 1.5rem;
-    }
+
     h1 {
       text-align: center;
-      color: #90caf9;
+      font-size: 1.4rem;
     }
-    input, button {
-      width: 100%;
-      padding: 0.75rem;
-      margin-top: 0.5rem;
-      border: none;
-      border-radius: 5px;
-      font-size: 1rem;
+
+    form {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      max-width: 300px;
+      margin: 0 auto 1rem;
     }
+
     input {
-      background-color: #1f1f1f;
+      padding: 0.4rem;
+      border-radius: 6px;
+      border: none;
+      font-size: 1rem;
+      background-color: #1e1e1e;
       color: #fff;
-      border: 1px solid #444;
     }
+
     button {
-      background-color: #1976d2;
-      color: #fff;
+      padding: 0.5rem;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      font-size: 1rem;
       cursor: pointer;
     }
-    button:hover {
-      background-color: #1565c0;
+
+    .resultado {
+      background-color: #1e1e1e;
+      padding: 1rem;
+      border-radius: 6px;
+      max-width: 300px;
+      margin: 0 auto;
     }
-    .info-row {
-      display: flex;
-      justify-content: space-between;
-      padding: 0.4rem 0;
-      border-bottom: 1px solid #333;
+
+    .resultado p {
+      margin: 0.5rem 0;
+      font-size: 0.95rem;
     }
+
     .error {
-      color: #f44336;
+      color: red;
       text-align: center;
-      margin-top: 1rem;
-    }
-    .success {
       margin-top: 1rem;
     }
   </style>
 </head>
 <body>
-  <div class="container">
-    <h1>Consulta Saldo CANTV</h1>
-    <form id="formulario">
-      <input type="text" id="codigo" placeholder="Código de área" value="212" required />
-      <input type="text" id="numero" placeholder="Número telefónico" value="3539190" required />
-      <button type="submit">Consultar</button>
-    </form>
-    <div id="resultado"></div>
-  </div>
+  <h1>Consulta de Saldo CANTV</h1>
+  <form id="formulario">
+    <input type="text" id="codigo" placeholder="Código de área (ej: 212)" maxlength="4" required />
+    <input type="text" id="numero" placeholder="Número telefónico" maxlength="7" required />
+    <button type="submit">Consultar</button>
+  </form>
+  <div class="resultado" id="resultado" style="display:none;"></div>
+  <p class="error" id="error" style="display:none;"></p>
 
   <script>
-    const formatearFecha = (fecha) => {
-      return fecha.replace(/(\d{4})(\d{2})(\d{2})/, "$3/$2/$1");
-    };
+    const formulario = document.getElementById("formulario");
+    const resultado = document.getElementById("resultado");
+    const error = document.getElementById("error");
 
-    document.getElementById("formulario").addEventListener("submit", async (e) => {
+    formulario.addEventListener("submit", async (e) => {
       e.preventDefault();
+      resultado.style.display = "none";
+      error.style.display = "none";
+
       const codigo = document.getElementById("codigo").value.trim();
       const numero = document.getElementById("numero").value.trim();
-      const resultado = document.getElementById("resultado");
-      resultado.innerHTML = "Consultando...";
-
-      const urlBase = "https://cati.cantv.com.ve/chat_cantv_java/Servlet_Consulta_Saldo";
-      const proxyUrl = `https://corsproxy.io/?${urlBase}?consulta_codigo_area=${codigo}&consulta_numero_telefonico=${numero}`;
+      const url = `https://corsproxy.io/?https://cati.cantv.com.ve/chat_cantv_java/Servlet_Consulta_Saldo?consulta_codigo_area=${codigo}&consulta_numero_telefonico=${numero}`;
 
       try {
-        const res = await fetch(proxyUrl);
-        const text = await res.text();
+        const res = await fetch(url);
+        const data = await res.json();
 
-        let json;
-        try {
-          json = JSON.parse(text);
-        } catch {
-          throw new Error("Respuesta inválida");
-        }
-
-        const data = json[0];
-        if (data.error) {
-          resultado.innerHTML = `<div class="error">⚠️ ${data.error}</div>`;
+        if (!data || data.length === 0 || data[0].error) {
+          error.textContent = "Error al consultar. Verifica el número e inténtalo de nuevo.";
+          error.style.display = "block";
           return;
         }
 
+        const d = data[0];
         resultado.innerHTML = `
-          <div class="success">
-            <div class="info-row"><strong>Línea:</strong><span>(${data.codigoArea}) ${data.telefono}</span></div>
-            <div class="info-row"><strong>Saldo actual:</strong><span>Bs ${data.saldoActual}</span></div>
-            <div class="info-row"><strong>Saldo vencido:</strong><span>Bs ${data.saldoVencido}</span></div>
-            <div class="info-row"><strong>Última facturación:</strong><span>${formatearFecha(data.fechaUltimaFacturacion)}</span></div>
-            <div class="info-row"><strong>Vencimiento:</strong><span>${formatearFecha(data.fechaVencimiento)}</span></div>
-            <div class="info-row"><strong>Fecha de corte:</strong><span>${formatearFecha(data.fechaCorte)}</span></div>
-            <div class="info-row"><strong>Último pago:</strong><span>Bs ${data.montoultipag}</span></div>
-          </div>
+          <p><strong>Teléfono:</strong> (${d.codigoArea}) ${d.telefono}</p>
+          <p><strong>Última facturación:</strong> ${formatearFecha(d.fechaUltimaFacturacion)}</p>
+          <p><strong>Saldo actual:</strong> Bs ${d.saldoActual}</p>
+          <p><strong>Saldo vencido:</strong> Bs ${d.saldoVencido}</p>
+          <p><strong>Fecha de corte:</strong> ${formatearFecha(d.fechaCorte)}</p>
+          <p><strong>Fecha de vencimiento:</strong> ${formatearFecha(d.fechaVencimiento)}</p>
+          <p><strong>Último pago:</strong> Bs ${d.montoultipag}</p>
         `;
-      } catch (err) {
-        resultado.innerHTML = `<div class="error">❌ Error al consultar: ${err.message}</div>`;
+        resultado.style.display = "block";
+      } catch (e) {
+        error.textContent = "Error al consultar. Verifica el número e inténtalo de nuevo.";
+        error.style.display = "block";
       }
     });
+
+    function formatearFecha(fechaStr) {
+      if (!fechaStr || fechaStr.length !== 8) return fechaStr;
+      const y = fechaStr.substring(0, 4);
+      const m = fechaStr.substring(4, 6);
+      const d = fechaStr.substring(6, 8);
+      return `${d}/${m}/${y}`;
+    }
   </script>
 </body>
 </html>
+
