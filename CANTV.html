@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Consulta CANTV</title>
+  <style>
+    body {
+      background-color: #121212;
+      color: #ffffff;
+      font-family: sans-serif;
+      margin: 0;
+      padding: 1rem;
+    }
+
+    h1 {
+      text-align: center;
+      font-size: 1.4rem;
+      margin-bottom: 1rem;
+    }
+
+    form {
+      max-width: 320px;
+      margin: 0 auto 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    input {
+      width: 300px;
+      padding: 0.5rem;
+      border-radius: 8px;
+      border: none;
+      font-size: 1rem;
+      background-color: #1e1e1e;
+      color: #fff;
+    }
+
+    button {
+      padding: 0.5rem;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 1rem;
+      cursor: pointer;
+    }
+
+    .resultado {
+      background-color: #1e1e1e;
+      padding: 1rem;
+      border-radius: 8px;
+      max-width: 320px;
+      margin: 0 auto;
+      display: none;
+    }
+
+    .resultado .fila {
+      display: flex;
+      justify-content: space-between;
+      padding: 0.3rem 0;
+      border-bottom: 1px solid #333;
+      font-size: 0.95rem;
+    }
+
+    .resultado .fila:last-child {
+      border-bottom: none;
+    }
+
+    .resultado .campo {
+      font-weight: 600;
+      color: #ccc;
+    }
+
+    .resultado .valor {
+      text-align: right;
+      color: #eee;
+      max-width: 150px;
+      word-break: break-word;
+    }
+
+    .error {
+      color: #ff5555;
+      text-align: center;
+      margin-top: 1rem;
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <h1>Consulta de Saldo CANTV</h1>
+  <form id="formulario">
+    <input type="text" id="codigo" placeholder="Código de área (ej: 212)" maxlength="4" required value="212" />
+    <input type="text" id="numero" placeholder="Número telefónico" maxlength="7" required value="3539190" />
+    <button type="submit">Consultar</button>
+  </form>
+  <div class="resultado" id="resultado"></div>
+  <p class="error" id="error"></p>
+
+  <script>
+    const formulario = document.getElementById("formulario");
+    const resultado = document.getElementById("resultado");
+    const error = document.getElementById("error");
+
+    formulario.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      resultado.style.display = "none";
+      error.style.display = "none";
+
+      const codigo = document.getElementById("codigo").value.trim();
+      const numero = document.getElementById("numero").value.trim();
+      const url = `https://corsproxy.io/?https://cati.cantv.com.ve/chat_cantv_java/Servlet_Consulta_Saldo?consulta_codigo_area=${codigo}&consulta_numero_telefonico=${numero}`;
+
+      try {
+        const res = await fetch(url);
+        const data = await res.json();
+
+        if (!data || data.length === 0 || data[0].error) {
+          error.textContent = "Error al consultar. Verifica el número e inténtalo de nuevo.";
+          error.style.display = "block";
+          return;
+        }
+
+        const d = data[0];
+        resultado.innerHTML = `
+          <div class="fila"><div class="campo">Teléfono:</div><div class="valor">(${d.codigoArea}) ${d.telefono}</div></div>
+          <div class="fila"><div class="campo">Última facturación:</div><div class="valor">${formatearFecha(d.fechaUltimaFacturacion)}</div></div>
+          <div class="fila"><div class="campo">Saldo actual:</div><div class="valor">Bs ${d.saldoActual}</div></div>
+          <div class="fila"><div class="campo">Saldo vencido:</div><div class="valor">Bs ${d.saldoVencido}</div></div>
+          <div class="fila"><div class="campo">Fecha de corte:</div><div class="valor">${formatearFecha(d.fechaCorte)}</div></div>
+          <div class="fila"><div class="campo">Fecha de vencimiento:</div><div class="valor">${formatearFecha(d.fechaVencimiento)}</div></div>
+          <div class="fila"><div class="campo">Último pago:</div><div class="valor">Bs ${d.montoultipag}</div></div>
+        `;
+        resultado.style.display = "block";
+      } catch (e) {
+        error.textContent = "Error al consultar. Verifica el número e inténtalo de nuevo.";
+        error.style.display = "block";
+      }
+    });
+
+    function formatearFecha(fechaStr) {
+      if (!fechaStr || fechaStr.length !== 8) return fechaStr;
+      const y = fechaStr.substring(0, 4);
+      const m = fechaStr.substring(4, 6);
+      const d = fechaStr.substring(6, 8);
+      return `${d}/${m}/${y}`;
+    }
+  </script>
+</body>
+</html>
