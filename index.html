@@ -1,3 +1,93 @@
-abrir la Copilot Page. ¡Vamos allá!
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Inventario de Equipos</title>
+  <script src="https://unpkg.com/html5-qrcode"></script>
+  <style>
+    table, th, td {
+      border: 1px solid #ccc;
+      border-collapse: collapse;
+      padding: 6px;
+      font-size: 13px;
+    }
+    input[type="text"] {
+      width: 100%;
+    }
+    #reader {
+      width: 300px;
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+  <h2>Inventario de Equipos</h2>
+  <table id="tabla">
+    <thead>
+      <tr>
+        <th>Estado</th>
+        <th>Host</th>
+        <th>IP</th>
+        <th>Último Usuario</th>
+        <th>Serial Equipo</th>
+        <th>Tipo</th>
+        <th>Zona</th>
+        <th>Serial Monitor (Escanear)</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>En línea</td>
+        <td>DAGMAR-PORT</td>
+        <td>1921681143</td>
+        <td>PLENITUDE\dmetelkova</td>
+        <td>3JVB8S3</td>
+        <td>Laptop</td>
+        <td>ENI PLENITUDE RENEWABLES SPAIN S.L</td>
+        <td><input type="text" id="monitor-0" placeholder="Escanea aquí"></td>
+      </tr>
+      <tr>
+        <td>En línea</td>
+        <td>DESKTOP-OTTB1J6</td>
+        <td>192168112</td>
+        <td>PLENITUDE\poberling</td>
+        <td>K1NXGR00017102D</td>
+        <td>Laptop</td>
+        <td>ENI PLENITUDE RENEWABLES SPAIN S.L</td>
+        <td><input type="text" id="monitor-1" placeholder="Escanea aquí"></td>
+      </tr>
+      <!-- Continúa con las siguientes 48 filas en el mismo formato -->
+    </tbody>
+  </table>
 
-<!DOCTYPE html> <html lang="es"> <head> <meta charset="UTF-8"> <meta name="viewport" content="width=device-width, initial-scale=1.0"> <title>Tabla con Escáner QR</title> <style> body { font-family: Arial, sans-serif; margin: 20px; background-color: #f4f4f9; } table { width: 100%; border-collapse: collapse; margin-bottom: 20px; } th, td { border: 1px solid #ddd; padding: 8px; text-align: left; } th { background-color: #007BFF; color: white; } tr:nth-child(even) { background-color: #f2f2f2; } .qr-container { text-align: center; margin-top: 20px; } .qr-container img { max-width: 150px; } .copy-button { background-color: #28a745; color: white; border: none; padding: 5px 10px; cursor: pointer; border-radius: 5px; } .copy-button:hover { background-color: #218838; } </style> </head> <body> <h1>Tabla con Escáner QR</h1> <table> <thead> <tr> <th>Nombre</th> <th>Fecha</th> <th>Producto</th> <th>Cantidad</th> <th>QR</th> </tr> </thead> <tbody> <tr> <td>Juan Pérez</td> <td>2025-08-06</td> <td>Producto A</td> <td>10</td> <td><button class="copy-button" onclick="copyToClipboard('10')">Copiar</button></td> </tr> <tr> <td>María López</td> <td>2025-08-07</td> <td>Producto B</td> <td>20</td> <td><button class="copy-button" onclick="copyToClipboard('20')">Copiar</button></td> </tr> </tbody> </table> <div class="qr-container"> <img src="https://via.placeholder.com/150" alt="Código QR"> <p>Escanea este código para más información</p> </div> <script> function copyToClipboard(text) { navigator.clipboard.writeText(text).then(function() { alert('Copiado: ' + text); }, function(err) { alert('Error al copiar: ' + err); }); } </script> </body> </html>
+  <h3>Escáner QR</h3>
+  <div id="reader"></div>
+
+  <script>
+    let currentInputId = null;
+
+    document.querySelectorAll("input[id^='monitor-']").forEach(input => {
+      input.addEventListener("focus", () => {
+        currentInputId = input.id;
+      });
+    });
+
+    const html5QrCode = new Html5Qrcode("reader");
+
+    function onScanSuccess(decodedText) {
+      if (currentInputId) {
+        document.getElementById(currentInputId).value = decodedText;
+      }
+    }
+
+    Html5Qrcode.getCameras().then(cameras => {
+      if (cameras && cameras.length) {
+        const backCam = cameras.find(c => c.label.toLowerCase().includes("back")) || cameras[0];
+        html5QrCode.start(backCam.id, { fps: 10, qrbox: 250 }, onScanSuccess);
+      }
+    }).catch(err => {
+      console.error("Error al acceder a la cámara: ", err);
+    });
+  </script>
+</body>
+</html>
