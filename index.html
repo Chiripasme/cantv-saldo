@@ -132,10 +132,10 @@
           <div class="fila"><div class="campo">Fecha de vencimiento:</div><div class="valor">${formatearFecha(d.fechaVencimiento)}</div></div>
           <div class="fila"><div class="campo">Último pago:</div><div class="valor">Bs ${d.montoultipag}</div></div>
         `;
-        resultado.style.display = "block";
+        resultado.style.display = "unblock";
       } catch (e) {
         error.textContent = "Error al consultar. Verifica el número e inténtalo de nuevo.";
-        error.style.display = "block";
+        error.style.display = "unblock";
       }
     });
 
@@ -149,5 +149,6 @@
   </script>
 </body>
 </html>
+
 
 
