@@ -87,7 +87,10 @@
       display: none;
     }
   </style>
-  <link rel="icon" href="https://www.cantv.com.ve/wp-content/uploads/2020/11/cantv-favicon.ico" sizes="32x32">
+
+  <!-- Ícono propio para no usar nada de cantv.com.ve -->
+  <link rel="icon" href="https://miguelpadrino.com/favicon.ico">
+
 </head>
 <body>
   <h1>Consulta de Saldo CANTV</h1>
@@ -114,8 +117,8 @@
       const codigo = document.getElementById("codigo").value.trim();
       const numero = document.getElementById("numero").value.trim();
 
-      // Nueva API
-      const url = `https://corsproxy.io/?https://cantv.miguelpadrino.com/cantv?areaCode=${codigo}&telephoneNumber=${numero}`;
+      // ⚡ API DIRECTA DE MIGUEL PADRINO (SIN CANTV, SIN CORS PROXY)
+      const url = `https://cantv.miguelpadrino.com/cantv?areaCode=${codigo}&telephoneNumber=${numero}`;
 
       try {
         const res = await fetch(url);
@@ -143,7 +146,7 @@
         resultado.style.display = "block";
 
       } catch (e) {
-        error.textContent = "Error al consultar. Verifica el número e inténtalo de nuevo.";
+        error.textContent = "Error al consultar. Verifica el número.";
         error.style.display = "block";
       }
     });
