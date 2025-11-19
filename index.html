@@ -43,17 +43,6 @@
 
   <script>
 
-     const formatDate = (iso) => {
-      if (!iso) return "N/A";
-      const date = new Date(iso);
-
-      const day = String(date.getDate()).padStart(2, '0');
-      const month = String(date.getMonth() + 1).padStart(2, '0');
-      const year = date.getFullYear();
-
-      return `${day}/${month}/${year}`;
-    };
-    
   const formulario = document.getElementById("formulario");
   const resultado = document.getElementById("resultado");
   const error = document.getElementById("error");
@@ -71,37 +60,37 @@
     const url = `https://corsproxy.io/?https://cantv.miguelpadrino.com/cantv?areaCode=${codigo}&telephoneNumber=${numero}`;
 
     try {
-      const res = await fetch(url);
-      const data = await res.json();
+  const res = await fetch(url);
+  const data = await res.json();
 
-      if (!data || !data.data) {
-        error.textContent = "No se pudieron obtener los datos del número.";
-        error.style.display = "block";
-        return;
-      }
+  if (!data || !data.data) {
+    error.textContent = "Error al consultar. Verifique el número.";
+    error.style.display = "block";
+    return;
+  }
 
-      const d = data.data;
-      const v = d.values || {};
+  // 👉 AQUI PON LA FUNCIÓN
+  const formatDate = (iso) => {
+    if (!iso) return "N/A";
+    const date = new Date(iso);
 
-      // Función para formatear fechas ISO a DD/MM/YYYY
-      const formatDate = (iso) => {
-        if (!iso) return "N/A";
-        const date = new Date(iso);
-        return date.toLocaleDateString("es-ES");
-      };
+    const day = String(date.getDate()).padStart(2, '0');
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const year = date.getFullYear();
 
-      resultado.innerHTML = `
-        <div class="fila"><div class="campo">Teléfono:</div><div class="valor">(${d.areaCode}) ${d.telephoneNumber}</div></div>
-        <div class="fila"><div class="campo">Última factura:</div><div class="valor">${formatDate(v.lastBillingDate)}</div></div>
-        <div class="fila"><div class="campo">Saldo actual:</div><div class="valor">Bs ${v.currentBalance || "N/A"}</div></div>
-        <div class="fila"><div class="campo">Total a pagar:</div><div class="valor">Bs ${v.balanceDue || "N/A"}</div></div>
-        <div class="fila"><div class="campo">Último pago:</div><div class="valor">Bs ${v.lastPaymentAmount || "N/A"}</div></div>
-        <div class="fila"><div class="campo">Fecha última factura:</div><div class="valor">${formatDate(v.lastBillingDate)}</div></div>
-        <div class="fila"><div class="campo">Fecha vencimiento:</div><div class="valor">${formatDate(v.expirationDate)}</div></div>
-        <div class="fila"><div class="campo">Fecha corte:</div><div class="valor">${formatDate(v.cutoffDate)}</div></div>
-        <br>
+    return `${day}/${month}/${year}`;
+  };
 
-      `;
+  resultado.innerHTML = `
+    <div class="fila"><div class="campo">Teléfono:</div><div class="valor">(${data.data.areaCode}) ${data.data.telephoneNumber}</div></div>
+    <div class="fila"><div class="campo">Saldo actual:</div><div class="valor">${data.data.values.currentBalance} Bs</div></div>
+    <div class="fila"><div class="campo">Saldo vencido:</div><div class="valor">${data.data.values.balanceDue} Bs</div></div>
+    <div class="fila"><div class="campo">Último pago:</div><div class="valor">${data.data.values.lastPaymentAmount} Bs</div></div>
+    <div class="fila"><div class="campo">Última facturación:</div><div class="valor">${formatDate(data.data.values.lastBillingDate)}</div></div>
+    <div class="fila"><div class="campo">Fecha de vencimiento:</div><div class="valor">${formatDate(data.data.values.expirationDate)}</div></div>
+    <div class="fila"><div class="campo">Fecha de corte:</div><div class="valor">${formatDate(data.data.values.cutoffDate)}</div></div>
+  `;
+
 
       resultado.style.display = "block";
 
@@ -114,4 +103,3 @@
 
 </body>
 </html>
-
